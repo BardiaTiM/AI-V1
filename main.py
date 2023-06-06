@@ -8,6 +8,24 @@ df = pd.read_csv('personality.csv', names=['input', 'output'])
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # use GPU if available
 
+import json
+
+def load_dataset(file_path):
+    with open(file_path, "r") as file:
+        data = json.load(file)
+
+    sentence_pairs = []
+    for dialogue in data:
+        dialogue_turns = dialogue['dialogue']
+        for i in range(1, len(dialogue_turns)):
+            sentence_pairs.append((dialogue_turns[i-1]['data']['utterance'], dialogue_turns[i]['data']['utterance']))
+    return sentence_pairs
+
+# Load the data
+sentence_pairs = load_dataset("kvret_train_public.json")
+
+
+
 class Encoder(nn.Module):
     def __init__(self, input_size, hidden_size):
         super(Encoder, self).__init__()
@@ -62,11 +80,11 @@ class Vocab:
             self.n_words += 1
 
 # Dummy sentence pairs: (input, target)
-sentence_pairs = [
-    ("hello how are you", "I am fine thank you"),
-    ("what is your name", "my name is AI"),
-    ("where do you live", "I live in the cloud"),
-]
+# sentence_pairs = [
+#     ("hello how are you", "I am fine thank you"),
+#     ("what is your name", "my name is AI"),
+#     ("where do you live", "I live in the cloud"),
+# ]
 
 # sentence_pairs = list(zip(df['input'].tolist(), df['output'].tolist()))
 
